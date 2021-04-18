@@ -20,6 +20,9 @@ namespace Match3
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
+            _graphics.PreferredBackBufferWidth = Settings.SCREEN_WIDTH;  // set this value to the desired width of your window
+            _graphics.PreferredBackBufferHeight = Settings.SCREEN_HEIGHT;   // set this value to the desired height of your window
+
             _screenManager = new ScreenManager(this);
             _screenManager.AddScreen(new MainMenuScreen());
 

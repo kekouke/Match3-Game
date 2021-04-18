@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Match3.Screens
 {
@@ -10,6 +8,8 @@ namespace Match3.Screens
     {
         private List<GameScreen> _screens;
         private SpriteBatch _spriteBatch;
+
+        bool _initialized = false;
 
         public ScreenManager(Game game) : base(game)
         {
@@ -32,16 +32,31 @@ namespace Match3.Screens
             _screens[0].Update(gameTime);
         }
 
+        public override void Initialize()
+        {
+            _initialized = true;
+
+            base.Initialize();
+        }
+
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin();
-            _screens[0].Draw(gameTime, _spriteBatch);
+
+            foreach (var screen in _screens)
+            {
+                screen.Draw(gameTime, _spriteBatch);
+            }
+
             _spriteBatch.End();
         }
 
         public void AddScreen(GameScreen screen)
         {
             screen.ScreenManager = this;
+
+            if (_initialized)
+                screen.LoadContent();
 
             _screens.Add(screen);
         }

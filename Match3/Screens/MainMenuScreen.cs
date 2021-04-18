@@ -18,8 +18,20 @@ namespace Match3.Screens
 
             var playGameTexture = _content.Load<Texture2D>("Controls/Button");
             var font = _content.Load<SpriteFont>("Fonts/Font");
+            var button = new Button(playGameTexture, "Start Game", font);
 
-            _buttons.Add(new Button(playGameTexture, "Start Game", font));
+
+            button.Position = new Vector2((Settings.SCREEN_WIDTH - button.Rectangle.Width) / 2,
+                (Settings.SCREEN_HEIGHT - button.Rectangle.Height) / 2);
+            button.Clicked += OnStartGame;
+
+            _buttons.Add(button);
+        }
+
+        // TODO
+        private void OnStartGame(object sender, EventArgs e)
+        {
+            ScreenManager.AddScreen(new GameplayScreen());
         }
 
         public override void Update(GameTime gameTime)
