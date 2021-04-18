@@ -31,7 +31,10 @@ namespace Match3.Screens
         // TODO
         private void OnStartGame(object sender, EventArgs e)
         {
-            ScreenManager.AddScreen(new GameplayScreen());
+            ScreenManager.AddScreen(new BackgroundScreen());
+            //ScreenManager.AddScreen(new GameplayScreen());
+
+            State = ScreenState.Hide;
         }
 
         public override void Update(GameTime gameTime)
