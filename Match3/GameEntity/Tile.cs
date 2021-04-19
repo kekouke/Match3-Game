@@ -20,8 +20,10 @@ namespace Match3.GameEntity
         private Texture2D _texture;
         private TileType _tileType;
 
-        public Vector2 Position { get; set; } = Vector2.Zero;
-        public TileType Type => _tileType;
+        public Vector2 Position { get; set; }
+        public TileType Type { get => _tileType; set => _tileType = value; }
+
+        public Texture2D Texture { get => _texture; set => _texture = value; }
 
         public Rectangle Rectangle { get => 
                 new Rectangle((int)Position.X,
@@ -39,6 +41,8 @@ namespace Match3.GameEntity
         {
             throw new NotImplementedException();
         }
+
+        public Tile() { }
 
         public Tile(Texture2D texture)
         {

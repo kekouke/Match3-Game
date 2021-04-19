@@ -32,7 +32,7 @@ namespace Match3.Screens
         private void OnStartGame(object sender, EventArgs e)
         {
             ScreenManager.AddScreen(new BackgroundScreen());
-            //ScreenManager.AddScreen(new GameplayScreen());
+            ScreenManager.AddScreen(new GameplayScreen());
 
             State = ScreenState.Hide;
         }
