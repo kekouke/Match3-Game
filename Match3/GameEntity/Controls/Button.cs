@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 
-namespace Match3.Controls
+namespace Match3.GameEntity.Controls
 {
     public class Button : IGameEntity
     {

@@ -13,6 +13,12 @@ namespace Match3.GameEntity.Tiles
         Diamond
     }
 
+    public enum TileState
+    {
+        Nothing,
+        Mark
+    }
+
     public abstract class Tile : IGameEntity
     {
         public virtual Texture2D Texture { get; }
@@ -20,6 +26,8 @@ namespace Match3.GameEntity.Tiles
         private TileType _tileType;
 
         public Vector2 Position { get; set; }
+
+        public TileState State;
         public TileType Type { get => _tileType; set => _tileType = value; }
 
         public Rectangle Rectangle
@@ -34,12 +42,12 @@ namespace Match3.GameEntity.Tiles
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Rectangle, Color.White);
+            var color = State == TileState.Nothing ? Color.White : Color.Black;
+            spriteBatch.Draw(Texture, Rectangle, color);
         }
 
         public void Update(GameTime gameTime)
         {
-            throw new NotImplementedException();
         }
 
     }

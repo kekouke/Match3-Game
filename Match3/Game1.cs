@@ -1,5 +1,4 @@
-﻿using Match3.Controls;
-using Match3.Screens;
+﻿using Match3.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

@@ -1,4 +1,4 @@
-﻿using Match3.Controls;
+﻿using Match3.GameEntity.Controls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
