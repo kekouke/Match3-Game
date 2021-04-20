@@ -1,4 +1,5 @@
-﻿using Match3.LevelGenerators;
+﻿using Match3.GameEntity.Tiles;
+using Match3.LevelGenerators;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -10,15 +11,16 @@ namespace Match3.GameEntity
     {
         private List<Tile> _tiles;
 
-        public List<Tile> Tiles => _tiles;
-
         private IGenerationStrategy _levelGenerator;
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            for (int i = 0; i < 8; i++)
+            int cols = Settings.GRID_COLS;
+            int rows = Settings.GRID_ROWS;
+
+            for (int i = 0; i < rows; i++)
             {
-                for (int j = 0; j < 8; j++)
+                for (int j = 0; j < cols; j++)
                 {
                     var tile = _tiles[i * 8 + j];
                     tile.Draw(gameTime, spriteBatch);
@@ -30,14 +32,14 @@ namespace Match3.GameEntity
         {
         }
 
+        public void InitializeCells()
+        {
+            _tiles = _levelGenerator.GenerateTiles();
+        }
+
         public GameGrid(IGenerationStrategy strategy)
         {
             _levelGenerator = strategy;
-        }
-
-        public void InitializeCells()
-        {
-            _tiles = _levelGenerator.CreateTiles(64);
         }
     }
 }
