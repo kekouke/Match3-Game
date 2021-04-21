@@ -8,7 +8,7 @@ namespace Match3.LevelGenerators
 {
     public interface IGenerationStrategy
     {
-        List<Tile> GenerateTiles();
+        Tile[,] GenerateTiles();
         Tile GenerateTile();
     }
 }

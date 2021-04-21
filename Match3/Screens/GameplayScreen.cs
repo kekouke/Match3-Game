@@ -13,10 +13,6 @@ namespace Match3.Screens
     {
         private GameGrid _gameGrid;
 
-        private MouseState _lastMouseState;
-        private MouseState _currentMouseState;
-
-
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             _gameGrid.Draw(gameTime, spriteBatch);
@@ -34,8 +30,6 @@ namespace Match3.Screens
 
         public override void Update(GameTime gameTime)
         {
-            ControlInput();
-
             _gameGrid.Update(gameTime);
         }
 
@@ -51,13 +45,13 @@ namespace Match3.Screens
 
         private void ControlInput()
         {
-            _lastMouseState = _currentMouseState;
+/*            _lastMouseState = _currentMouseState;
             _currentMouseState = Mouse.GetState();
 
             if (_lastMouseState.LeftButton == ButtonState.Pressed && _currentMouseState.LeftButton == ButtonState.Released)
             {
                 _gameGrid.HandleInput(_currentMouseState.Position);
-            }
+            }*/
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Match3.GameEntity.Tiles
         public virtual Texture2D Texture { get; }
 
         public Vector2 Position { get; set; }
-        public Vector2 ArrayPosition { get; set; }
+        public Point ArrayPosition { get; set; }
 
         public TileState State { get; set; }
 
@@ -38,7 +38,8 @@ namespace Match3.GameEntity.Tiles
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Rectangle, Color.White);
+            var color = State == TileState.Nothing ? Color.White : Color.Black;
+            spriteBatch.Draw(Texture, Rectangle, color);
         }
 
         public void Update(GameTime gameTime)
@@ -64,9 +65,10 @@ namespace Match3.GameEntity.Tiles
             Position += movement * _speed * (float)gameTime.ElapsedGameTime.TotalMilliseconds;
         }
 
-        public void MoveTo(Vector2 targetPosition)
+        public void MoveTo(Vector2 targetPosition, Point arrayPosition)
         {
             _targetPosition = targetPosition;
+            ArrayPosition = arrayPosition;
             IsMoving = true;
         }
 

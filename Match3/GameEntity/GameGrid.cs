@@ -2,6 +2,7 @@
 using Match3.LevelGenerators;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,14 +12,14 @@ namespace Match3.GameEntity
     {
         Initial,
         TileSelected,
-        TileMoving
+        TileMoving,
+        TileSwapped,
+        HasEmptyFields
     }
 
     public class GameGrid : IGameEntity
     {
-        private List<Tile> _tiles;
-        private Tile[,] _tilesArray;
-        private List<Tile> _movingTiles = new List<Tile>();
+        private Tile[,] _tiles;
 
         private IGenerationStrategy _levelGenerator;
 
@@ -27,70 +28,85 @@ namespace Match3.GameEntity
 
         private BoardState _currentState = BoardState.Initial;
         private Tile _selectedTile;
+        private Tile _swappedTile;
+
+        private MouseState _lastMouseState;
+        private MouseState _currentMouseState;
+        private Point _mousePosition = new Point(-1, -1);
+
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            _tiles.ForEach(x => x.Draw(gameTime, spriteBatch));
+            foreach (var tile in _tiles)
+            {
+                if (tile == null) continue;
+
+                tile.Draw(gameTime, spriteBatch);
+            }
         }
 
         public void Update(GameTime gameTime)
         {
-            _tiles.ForEach(x => x.Update(gameTime));
-
-            switch (_currentState)
+            foreach (var tile in _tiles)
             {
-                case BoardState.TileMoving:
-                    _movingTiles = _movingTiles.Where(x => x.IsMoving).ToList();
-
-                    if (_movingTiles.Count < 1)
-                        _currentState = BoardState.Initial;
-
-                    break;
+                tile.Update(gameTime);
             }
-        }
 
-        public void HandleInput(Point mousePosition)
-        {
+
+            _currentState = GetState();
+
             switch (_currentState)
             {
                 case BoardState.Initial:
 
-                    _selectedTile = SelectTile(mousePosition);
+                    ControlInput();
+                    var clickedTile = SelectTile(_mousePosition);
 
-                    if (_selectedTile == null)
-                        return;
+                    if (clickedTile != null)
+                    {
+                        _selectedTile = clickedTile;
+                        // TODO: Start animation
+                    }
 
-                    //TODO
-                    _selectedTile.inFocus = true;
-                    _currentState = BoardState.TileSelected;
                     break;
 
                 case BoardState.TileSelected:
 
-                    var tile = SelectTile(mousePosition);
+                    ControlInput();
+                    var tile = SelectTile(_mousePosition);
 
-                    if (_selectedTile.CheckNeighbourhoodTo(tile))
+                    if (tile != null)
                     {
-                        _currentState = BoardState.TileMoving;
+                        if (_selectedTile.CheckNeighbourhoodTo(tile))
+                        {
+                            _swappedTile = tile;
 
-                        _selectedTile.MoveTo(tile.Position);
-                        tile.MoveTo(_selectedTile.Position);
+                            SwapTiles(_selectedTile, _swappedTile);
 
-                        _movingTiles.Add(_selectedTile);
-                        _movingTiles.Add(tile);
+                            break;
+                        }
 
-                        break;
+                        _selectedTile = null;
+
                     }
 
-                    _currentState = BoardState.Initial;
 
-                    _selectedTile.inFocus = false;
+                    break;
+
+                case BoardState.TileSwapped:
+                    if (!DetectNodes())
+                    {
+                        SwapTiles(_selectedTile, _swappedTile);
+                    }
+
+                    _swappedTile = null;
                     _selectedTile = null;
 
                     break;
 
                 case BoardState.TileMoving:
                     break;
+
             }
         }
 
@@ -100,14 +116,18 @@ namespace Match3.GameEntity
 
             while (DetectNodes())
             {
-                for (int i = 0; i < _tiles.Count; i++)
+                for (int i = 0; i < ROWS; i++)
                 {
-                    if (_tiles[i].State == TileState.MarkHorizontal ||
-                        _tiles[i].State == TileState.MarkVertical)
+                    for (int j = 0; j < COLS; j++)
                     {
-                        var pos = _tiles[i].Position;
-                        _tiles[i] = _levelGenerator.GenerateTile();
-                        _tiles[i].Position = pos;
+                        if (_tiles[i, j].State == TileState.MarkHorizontal ||
+                            _tiles[i, j].State == TileState.MarkVertical)
+                        {
+                            var pos = _tiles[i, j].Position;
+                            _tiles[i, j] = _levelGenerator.GenerateTile();
+                            _tiles[i, j].Position = pos;
+                            _tiles[i, j].ArrayPosition = new Point(i, j);
+                        }
                     }
                 }
             }
@@ -118,28 +138,18 @@ namespace Match3.GameEntity
         {
             bool isDetected = false;
 
-            var tiles = new Tile[ROWS, COLS];            
-
             for (int i = 0; i < ROWS; i++)
             {
                 for (int j = 0; j < COLS; j++)
                 {
-                    tiles[i, j] = _tiles[i * ROWS + j];
-                }
-            }
-
-            for (int i = 0; i < ROWS; i++)
-            {
-                for (int j = 0; j < COLS; j++)
-                {
-                    if (j > 5 || tiles[j, i].State == TileState.MarkHorizontal)
+                    if (j > 5 || _tiles[j, i].State == TileState.MarkHorizontal)
                         continue;
 
                     int n = j + 1;
-                    var list = new List<Tile>() { tiles[j, i] };
-                    while (n < tiles.GetLength(1) && tiles[j, i].GetType().Equals(tiles[n, i].GetType()))
+                    var list = new List<Tile>() { _tiles[j, i] };
+                    while (n < _tiles.GetLength(1) && _tiles[j, i].GetType().Equals(_tiles[n, i].GetType()))
                     {
-                        list.Add(tiles[n, i]);
+                        list.Add(_tiles[n, i]);
                         n++;
                     }
 
@@ -151,18 +161,18 @@ namespace Match3.GameEntity
                 }
             }
 
-            for (int i = 0; i < tiles.GetLength(1); i++)
+            for (int i = 0; i < ROWS; i++)
             {
-                for (int j = 0; j < tiles.GetLength(0); j++)
+                for (int j = 0; j < COLS; j++)
                 {
-                    if (j > 5 || tiles[i, j].State == TileState.MarkVertical)
+                    if (j > 5 || _tiles[i, j].State == TileState.MarkVertical)
                         continue;
 
                     int n = j + 1;
-                    var list = new List<Tile>() { tiles[i, j] };
-                    while (n < tiles.GetLength(1) && tiles[i, j].GetType().Equals(tiles[i, n].GetType()))
+                    var list = new List<Tile>() { _tiles[i, j] };
+                    while (n < _tiles.GetLength(1) && _tiles[i, j].GetType().Equals(_tiles[i, n].GetType()))
                     {
-                        list.Add(tiles[i, n]);
+                        list.Add(_tiles[i, n]);
                         n++;
                     }
 
@@ -181,11 +191,66 @@ namespace Match3.GameEntity
         {
             var mouseRect = new Rectangle(position, new Point(1, 1));
 
-            var tile = _tiles.Where(x => mouseRect.Intersects(x.Rectangle)).SingleOrDefault();
+            var tiles = ConvertToList();
+
+            var tile = tiles.Where(x => mouseRect.Intersects(x.Rectangle)).SingleOrDefault();
 
             return tile;
         }
 
+        private BoardState GetState()
+        {
+            var tiles = ConvertToList();
+
+            if (tiles.Any(x => x == null))
+                return BoardState.HasEmptyFields;
+            if (tiles.Any(x => x.IsMoving))
+                return BoardState.TileMoving;
+            if (_swappedTile != null)
+                return BoardState.TileSwapped;
+            if (_selectedTile != null)
+                return BoardState.TileSelected;
+
+            return BoardState.Initial;
+        }
+
+        private List<Tile> ConvertToList()
+        {
+            var result = new List<Tile>();
+            for (int i = 0; i < ROWS; i++)
+            {
+                result.AddRange(Enumerable.Range(0, COLS).Select(x => _tiles[i, x]));
+            }
+
+            return result;
+        }
+
+        private void SwapTiles(Tile first, Tile second)
+        {
+            var firstPos = first.ArrayPosition;
+            var secondPos = second.ArrayPosition;
+
+            first.MoveTo(second.Position, secondPos);
+            second.MoveTo(first.Position, firstPos);
+
+            _tiles[firstPos.X, firstPos.Y] = second;
+            _tiles[secondPos.X, secondPos.Y] = first;
+        }
+
+        private void ControlInput()
+        {
+            _lastMouseState = _currentMouseState;
+            _currentMouseState = Mouse.GetState();
+
+            if (_lastMouseState.LeftButton == ButtonState.Pressed &&
+                _currentMouseState.LeftButton == ButtonState.Released)
+            {
+                _mousePosition = _currentMouseState.Position;
+                return;
+            }
+
+            _mousePosition = new Point(-1, -1);
+        }
 
         public GameGrid(IGenerationStrategy strategy)
         {

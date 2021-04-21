@@ -17,9 +17,10 @@ namespace Match3.LevelGenerators
             new Diamond()
         };
 
-        public List<Tile> GenerateTiles()
+        public Tile[,] GenerateTiles()
         {
-            var result = new List<Tile>();
+            var tiles = new Tile[Settings.GRID_ROWS, Settings.GRID_ROWS];
+
             for (int i = 1; i <= 8; i++)
             {
                 for (int j = 1; j <= 8; j++)
@@ -32,11 +33,13 @@ namespace Match3.LevelGenerators
                     tile.Position = new Vector2(Settings.SCREEN_WIDTH - i * 64,
                         Settings.SCREEN_HEIGHT - j * 64);
 
-                    result.Add(tile);
+                    tile.ArrayPosition = new Point(row, col);
+
+                    tiles[row, col] = tile;
                 }
             }
 
-            return result;
+            return tiles;
         }
 
         public Tile GenerateTile()
