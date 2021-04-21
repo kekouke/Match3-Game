@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Match3.Animations;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
@@ -15,6 +16,7 @@ namespace Match3.GameEntity.Tiles
     {
         private Vector2 _targetPosition;
         private float _speed = 0.5f;
+        private Animation _animation = new ScaleAnimation();
 
         public bool inFocus = false;
         public bool IsMoving { get; private set; }
@@ -23,6 +25,7 @@ namespace Match3.GameEntity.Tiles
 
         public Vector2 Position { get; set; }
         public Point ArrayPosition { get; set; }
+        public float Scale { get; set; } = 1f;
 
         public TileState State { get; set; }
 
@@ -39,7 +42,10 @@ namespace Match3.GameEntity.Tiles
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             var color = State == TileState.Nothing ? Color.White : Color.Black;
-            spriteBatch.Draw(Texture, Rectangle, color);
+
+            var center = new Vector2(Texture.Width / 2, Texture.Height / 2);
+
+            spriteBatch.Draw(Texture, Position + center, null, color, 0, center, Scale, SpriteEffects.None, 0);
         }
 
         public void Update(GameTime gameTime)
@@ -48,6 +54,8 @@ namespace Match3.GameEntity.Tiles
             {
                 Move(gameTime);
             }
+
+            _animation.Animate(gameTime);
         }
 
         public void Move(GameTime gameTime)
@@ -79,6 +87,16 @@ namespace Match3.GameEntity.Tiles
 
             return (rect1.X == rect2.X && Math.Abs(rect1.Y - rect2.Y) == Settings.TILE_SIZE.Y)
                 ^ (rect1.Y == rect2.Y && Math.Abs(rect1.X - rect2.X) == Settings.TILE_SIZE.X);
+        }
+
+        public void StartAnimation()
+        {
+            _animation.Start(this);
+        }
+
+        public void StopAnimation()
+        {
+            _animation.Stop(this);
         }
     }
 }

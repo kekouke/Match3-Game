@@ -65,7 +65,7 @@ namespace Match3.GameEntity
                     if (clickedTile != null)
                     {
                         _selectedTile = clickedTile;
-                        // TODO: Start animation
+                        _selectedTile.StartAnimation();
                     }
 
                     break;
@@ -77,17 +77,19 @@ namespace Match3.GameEntity
 
                     if (tile != null)
                     {
+                        _selectedTile.StopAnimation();
+
                         if (_selectedTile.CheckNeighbourhoodTo(tile))
                         {
                             _swappedTile = tile;
+
+
 
                             SwapTiles(_selectedTile, _swappedTile);
 
                             break;
                         }
-
                         _selectedTile = null;
-
                     }
 
 
