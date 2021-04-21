@@ -5,12 +5,17 @@ using Match3.GameEntity;
 using System.Collections.Generic;
 using Match3.LevelGenerators;
 using Match3.GameEntity.Tiles;
+using Microsoft.Xna.Framework.Input;
 
 namespace Match3.Screens
 {
     public class GameplayScreen : GameScreen
     {
         private GameGrid _gameGrid;
+
+        private MouseState _lastMouseState;
+        private MouseState _currentMouseState;
+
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
@@ -29,6 +34,8 @@ namespace Match3.Screens
 
         public override void Update(GameTime gameTime)
         {
+            ControlInput();
+
             _gameGrid.Update(gameTime);
         }
 
@@ -40,6 +47,17 @@ namespace Match3.Screens
         private void InitializeCells()
         {
             _gameGrid.InitializeCells();
+        }
+
+        private void ControlInput()
+        {
+            _lastMouseState = _currentMouseState;
+            _currentMouseState = Mouse.GetState();
+
+            if (_lastMouseState.LeftButton == ButtonState.Pressed && _currentMouseState.LeftButton == ButtonState.Released)
+            {
+                _gameGrid.HandleInput(_currentMouseState.Position);
+            }
         }
     }
 }

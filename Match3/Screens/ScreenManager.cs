@@ -41,7 +41,11 @@ namespace Match3.Screens
             _screensToUpdate.Clear();
 
             foreach (var screen in _screens)
-                _screensToUpdate.Add(screen);
+            {
+                if (screen.State != ScreenState.Hide)
+                    _screensToUpdate.Add(screen);
+            }
+
 
             while (_screensToUpdate.Count > 0)
             {
