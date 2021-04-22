@@ -30,6 +30,7 @@ namespace Match3.GameEntity
         private Tile _selectedTile;
         private Tile _swappedTile;
 
+        private bool _tilesCollapse = false;
         private MouseState _lastMouseState;
         private MouseState _currentMouseState;
         private Point _mousePosition = new Point(-1, -1);
@@ -131,7 +132,6 @@ namespace Match3.GameEntity
 
                 case BoardState.HasEmptyFields:
                     MoveDown();
-                    //FillBoard();
                     break;
 
                 case BoardState.TileMoving:
@@ -287,28 +287,44 @@ namespace Match3.GameEntity
 
         private void MoveDown()
         {
-            for (int i = ROWS - 1; i >= 0; i--)
+            if (!_tilesCollapse)
             {
-                for (int j = 0; j < COLS; j++)
+                _tilesCollapse = true;
+
+                for (int i = ROWS - 1; i >= 0; i--)
                 {
-                    if (_tiles[i, j] == null)
+                    for (int j = 0; j < COLS; j++)
                     {
-                        var tiles = Enumerable.Range(0, i).Select(x => _tiles[x, j]).Reverse().ToList();
-                        var tile = tiles.Where(x => x != null).FirstOrDefault();
-
-                        if (tile != null)
+                        if (_tiles[i, j] == null)
                         {
-                            _tiles[tile.ArrayPosition.X, tile.ArrayPosition.Y] = null;
+                            var tiles = Enumerable.Range(0, i).Select(x => _tiles[x, j]).Reverse().ToList();
+                            var tile = tiles.Where(x => x != null).FirstOrDefault();
 
-                            tile.MoveTo(CoordToTilePosition(new Point(i, j)),
-                                            new Point(i, j));
+                            if (tile != null)
+                            {
+                                _tiles[tile.ArrayPosition.X, tile.ArrayPosition.Y] = null;
 
-                            _tiles[i, j] = tile;
+                                tile.MoveTo(CoordToTilePosition(new Point(i, j)),
+                                                new Point(i, j));
+
+                                _tiles[i, j] = tile;
+                            }
                         }
                     }
                 }
             }
-           FillBoard();
+            else
+            {
+                var tiles = ConvertToList().Where(x => x != null && x.IsMoving == true).ToList();
+
+                if (tiles.Count == 0)
+                {
+                    FillBoard();
+                    _tilesCollapse = false;
+                }
+
+
+            }
         }
 
         private void FillBoard()
