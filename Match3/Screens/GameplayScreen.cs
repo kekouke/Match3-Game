@@ -10,9 +10,14 @@ namespace Match3.Screens
     public class GameplayScreen : GameScreen
     {
         private GameGrid _gameGrid;
+        private SpriteFont _spriteFont;
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
+
+            spriteBatch.DrawString(_spriteFont, "Score: " + _gameGrid.Score,
+                Vector2.Zero, Color.White, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 0);
+
             _gameGrid.Draw(gameTime, spriteBatch);
         }
 
@@ -22,6 +27,8 @@ namespace Match3.Screens
                 _content = new ContentManager(ScreenManager.Game.Services, "Content");
 
             TileTexturesProvider.LoadContent(_content);
+
+            _spriteFont = _content.Load<SpriteFont>("Fonts/Font");
 
             InitializeCells();
         }

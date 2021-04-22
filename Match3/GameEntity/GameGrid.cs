@@ -3,6 +3,7 @@ using Match3.LevelGenerators;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,6 +20,8 @@ namespace Match3.GameEntity
 
     public class GameGrid : IGameEntity
     {
+        public int Score { get; private set; }
+
         private Tile[,] _tiles;
 
         private IGenerationStrategy _levelGenerator;
@@ -26,7 +29,7 @@ namespace Match3.GameEntity
         private readonly int COLS = Settings.GRID_ROWS;
         private readonly int ROWS = Settings.GRID_COLS;
 
-        private BoardState _currentState = BoardState.Initial;
+        private BoardState _currentState;
         private Tile _selectedTile;
         private Tile _swappedTile;
 
@@ -35,13 +38,13 @@ namespace Match3.GameEntity
         private MouseState _currentMouseState;
         private Point _mousePosition = new Point(-1, -1);
 
-
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             foreach (var tile in _tiles)
             {
                 tile?.Draw(gameTime, spriteBatch);
             }
+
         }
 
         public void Update(GameTime gameTime)
@@ -59,16 +62,8 @@ namespace Match3.GameEntity
 
                     var matches1 = DetectNodes();
 
-                    if (matches1.Count != 0)
-                    {
-                        matches1.ForEach(x =>
-                        {
-                            var pos = x.ArrayPosition;
-                            _tiles[pos.X, pos.Y] = null;
-                        });
-
+                    if (RemoveMatches(matches1))
                         return;
-                    }
 
                     ControlInput();
                     var clickedTile = SelectTile(_mousePosition);
@@ -108,17 +103,9 @@ namespace Match3.GameEntity
 
                     var matches = DetectNodes();
 
-                    if (matches.Count == 0)
+                    if (!RemoveMatches(matches))
                     {
                         SwapTiles(_selectedTile, _swappedTile);
-                    }
-                    else
-                    {
-                        matches.ForEach(x => 
-                        {
-                            var pos = x.ArrayPosition;
-                            _tiles[pos.X, pos.Y] = null;
-                        });
                     }
 
                     _swappedTile = null;
@@ -279,6 +266,23 @@ namespace Match3.GameEntity
 
             _tiles[firstPos.X, firstPos.Y] = second;
             _tiles[secondPos.X, secondPos.Y] = first;
+        }
+
+        private bool RemoveMatches(List<Tile> tiles)
+        {
+            Score += tiles.Count;
+
+            if (tiles.Count != 0)
+            {
+                tiles.ForEach(x =>
+                {
+                    var pos = x.ArrayPosition;
+                    _tiles[pos.X, pos.Y] = null;
+                });
+                return true;
+            }
+
+            return false;
         }
 
         private void MoveDown()
