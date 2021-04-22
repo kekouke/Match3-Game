@@ -49,7 +49,7 @@ namespace Match3.GameEntity
         {
             foreach (var tile in _tiles)
             {
-                tile.Update(gameTime);
+                tile?.Update(gameTime);
             }
 
 
@@ -96,14 +96,30 @@ namespace Match3.GameEntity
                     break;
 
                 case BoardState.TileSwapped:
-                    if (!DetectNodes())
+
+                    var matches = DetectNodes();
+
+                    if (matches.Count == 0)
                     {
                         SwapTiles(_selectedTile, _swappedTile);
+                    }
+                    else
+                    {
+                        matches.ForEach(x => 
+                        {
+                            var pos = x.ArrayPosition;
+                            _tiles[pos.X, pos.Y] = null;
+                        });
                     }
 
                     _swappedTile = null;
                     _selectedTile = null;
 
+                    break;
+
+                case BoardState.HasEmptyFields:
+                    MoveDown();
+                    //FillBoard();
                     break;
 
                 case BoardState.TileMoving:
@@ -116,7 +132,7 @@ namespace Match3.GameEntity
         {
             _tiles = _levelGenerator.GenerateTiles();
 
-            while (DetectNodes())
+            while (DetectNodes().Count > 0)
             {
                 for (int i = 0; i < ROWS; i++)
                 {
@@ -136,9 +152,9 @@ namespace Match3.GameEntity
         }
 
         // TODO
-        private bool DetectNodes()
+        private List<Tile> DetectNodes()
         {
-            bool isDetected = false;
+            var matches = new List<Tile>();
 
             for (int i = 0; i < ROWS; i++)
             {
@@ -157,8 +173,11 @@ namespace Match3.GameEntity
 
                     if (list.Count >= 3)
                     {
-                        list.ForEach(x => x.State = TileState.MarkHorizontal);
-                        isDetected = true;
+                        list.ForEach(x =>
+                        {
+                            x.State = TileState.MarkHorizontal;
+                            matches.Add(x);
+                        });
                     }
                 }
             }
@@ -180,13 +199,18 @@ namespace Match3.GameEntity
 
                     if (list.Count >= 3)
                     {
-                        list.ForEach(x => x.State = TileState.MarkVertical);
-                        isDetected = true;
+                        list.ForEach(x =>
+                        {
+                            x.State = TileState.MarkVertical;
+                            matches.Add(x);
+                        });
                     }
                 }
             }
 
-            return isDetected;
+            matches = matches.Distinct().ToList();
+
+            return matches;
         }
 
         private Tile SelectTile(Point position)
@@ -237,6 +261,54 @@ namespace Match3.GameEntity
 
             _tiles[firstPos.X, firstPos.Y] = second;
             _tiles[secondPos.X, secondPos.Y] = first;
+        }
+
+        private void MoveDown()
+        {
+            for (int i = ROWS - 1; i >= 0; i--)
+            {
+                for (int j = 0; j < COLS; j++)
+                {
+                    if (_tiles[i, j] == null)
+                    {
+                        var tiles = Enumerable.Range(0, i).Select(x => _tiles[x, j]).Reverse().ToList();
+                        var tile = tiles.Where(x => x != null).FirstOrDefault();
+
+                        if (tile != null)
+                        {
+                            _tiles[tile.ArrayPosition.X, tile.ArrayPosition.Y] = null;
+
+                            tile.MoveTo(new Vector2(Settings.SCREEN_WIDTH - i * Settings.TILE_SIZE.X - Settings.TILE_SIZE.X,
+                                            Settings.SCREEN_HEIGHT - j * Settings.TILE_SIZE.Y - Settings.TILE_SIZE.Y),
+                                            new Point(i, j));
+
+                            _tiles[i, j] = tile;
+                        }
+                    }
+                }
+            }
+           // FillBoard();
+        }
+
+        private void FillBoard()
+        {
+            for (int i = 0; i < ROWS; i++)
+            {
+                for (int j = 0; j < COLS; j++)
+                {
+                    var tile = _tiles[i, j];
+
+                    if (tile != null)
+                        continue;
+
+                    tile = _levelGenerator.GenerateTile();
+                    tile.ArrayPosition = new Point(i, j);
+                    tile.Position = new Vector2(Settings.SCREEN_WIDTH - i * Settings.TILE_SIZE.X - Settings.TILE_SIZE.X,
+                        Settings.SCREEN_HEIGHT - j * Settings.TILE_SIZE.Y - Settings.TILE_SIZE.Y);
+
+                    _tiles[i, j] = tile;
+                }
+            }
         }
 
         private void ControlInput()
