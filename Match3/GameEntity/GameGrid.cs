@@ -30,7 +30,7 @@ namespace Match3.GameEntity
         private Tile _selectedTile;
         private Tile _swappedTile;
 
-        private bool _tilesCollapse = false;
+        private bool _tilesCollapse;
         private MouseState _lastMouseState;
         private MouseState _currentMouseState;
         private Point _mousePosition = new Point(-1, -1);
@@ -40,9 +40,7 @@ namespace Match3.GameEntity
         {
             foreach (var tile in _tiles)
             {
-                if (tile == null) continue;
-
-                tile.Draw(gameTime, spriteBatch);
+                tile?.Draw(gameTime, spriteBatch);
             }
         }
 
@@ -95,8 +93,6 @@ namespace Match3.GameEntity
                         if (_selectedTile.CheckNeighbourhoodTo(tile))
                         {
                             _swappedTile = tile;
-
-
 
                             SwapTiles(_selectedTile, _swappedTile);
 
@@ -241,7 +237,7 @@ namespace Match3.GameEntity
 
             var tiles = ConvertToList();
 
-            var tile = tiles.Where(x => mouseRect.Intersects(x.Rectangle)).SingleOrDefault();
+            var tile = tiles.Where(x => mouseRect.Intersects(x.Rectangle)).FirstOrDefault();
 
             return tile;
         }

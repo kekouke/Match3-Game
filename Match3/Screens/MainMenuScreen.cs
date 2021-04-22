@@ -4,13 +4,13 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Match3.Screens
 {
     public class MainMenuScreen : GameScreen
     {
         private List<Button> _buttons = new List<Button>();
+
         public override void LoadContent()
         {
             if (_content == null)
@@ -20,37 +20,35 @@ namespace Match3.Screens
             var font = _content.Load<SpriteFont>("Fonts/Font");
             var button = new Button(playGameTexture, "Start Game", font);
 
-
-            button.Position = new Vector2((Settings.SCREEN_WIDTH - button.Rectangle.Width) / 2,
+            var screenCenter = new Vector2((Settings.SCREEN_WIDTH - button.Rectangle.Width) / 2,
                 (Settings.SCREEN_HEIGHT - button.Rectangle.Height) / 2);
+
+            button.Position = screenCenter;
             button.Clicked += OnStartGame;
 
             _buttons.Add(button);
         }
 
-        // TODO
+        public override void UnloadContent()
+        {
+            _content.Unload();
+        }
+
         private void OnStartGame(object sender, EventArgs e)
         {
             ScreenManager.AddScreen(new BackgroundScreen());
             ScreenManager.AddScreen(new GameplayScreen());
-
-            State = ScreenState.Hide;
+            ScreenManager.RemoveScreen(this);
         }
 
         public override void Update(GameTime gameTime)
         {
-            foreach (var button in _buttons)
-            {
-                button.Update(gameTime);
-            }
+            _buttons.ForEach(x => x.Update(gameTime));
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            foreach (var button in _buttons)
-            {
-                button.Draw(gameTime, spriteBatch);
-            }
+            _buttons.ForEach(x => x.Draw(gameTime, spriteBatch));
         }
     }
 }

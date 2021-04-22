@@ -8,9 +8,9 @@ namespace Match3.Screens
     {
         private List<GameScreen> _screens;
         private List<GameScreen> _screensToUpdate;
-        private SpriteBatch _spriteBatch;
 
-        bool _initialized = false;
+        private SpriteBatch _spriteBatch;
+        private bool _initialized;
 
         public ScreenManager(Game game) : base(game)
         {
@@ -18,22 +18,11 @@ namespace Match3.Screens
             _screensToUpdate = new List<GameScreen>();
         }
 
-        protected override void LoadContent()
-        {
-
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            foreach (var screen in _screens)
-            {
-                screen.LoadContent();
-            }
-        }
-
         public override void Initialize()
         {
-            _initialized = true;
-
             base.Initialize();
+
+            _initialized = true;
         }
 
         public override void Update(GameTime gameTime)
@@ -42,16 +31,15 @@ namespace Match3.Screens
 
             foreach (var screen in _screens)
             {
-                if (screen.State != ScreenState.Hide)
-                    _screensToUpdate.Add(screen);
+                _screensToUpdate.Add(screen);
             }
-
 
             while (_screensToUpdate.Count > 0)
             {
                 var screen = _screensToUpdate[_screensToUpdate.Count - 1];
 
                 screen.Update(gameTime);
+
                 _screensToUpdate.RemoveAt(_screensToUpdate.Count - 1);
             }
 
@@ -80,6 +68,18 @@ namespace Match3.Screens
                 screen.LoadContent();
 
             _screens.Add(screen);
+        }
+
+        public void RemoveScreen(GameScreen screen)
+        {
+            screen.UnloadContent();
+            _screens.Remove(screen);
+        }
+
+        protected override void LoadContent()
+        {
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            _screens.ForEach(x => x.LoadContent());
         }
     }
 }

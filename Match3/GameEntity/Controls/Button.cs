@@ -7,13 +7,14 @@ namespace Match3.GameEntity.Controls
 {
     public class Button : IGameEntity
     {
-
         private Texture2D _texture;
         private SpriteFont _spriteFont;
         private bool _isHovering;
 
         private MouseState _currentState;
         private MouseState _previousState;
+
+        public EventHandler Clicked;
 
         public Rectangle Rectangle 
         { 
@@ -24,8 +25,18 @@ namespace Match3.GameEntity.Controls
         }
 
         public string Text { get; set; }
-        public EventHandler Clicked;
         public Vector2 Position { get; set; }
+
+        public Button(Texture2D texture)
+        {
+            _texture = texture;
+        }
+
+        public Button(Texture2D texture, string text, SpriteFont spriteFont) : this(texture)
+        {
+            Text = text;
+            _spriteFont = spriteFont;
+        }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
@@ -67,21 +78,6 @@ namespace Match3.GameEntity.Controls
             var y = (Rectangle.Y + (Rectangle.Height / 2)) - (_spriteFont.MeasureString(Text).Y / 2);
 
             return new Vector2(x, y);
-        }
-
-        public Button(Texture2D texture)
-        {
-            _texture = texture;
-        }
-
-        public Button(Texture2D texture, SpriteFont spriteFont) : this(texture)
-        {
-            _spriteFont = spriteFont;
-        }
-
-        public Button(Texture2D texture, string text, SpriteFont spriteFont) : this(texture, spriteFont)
-        {
-            Text = text;
         }
     }
 }

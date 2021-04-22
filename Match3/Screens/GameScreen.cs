@@ -10,12 +10,12 @@ namespace Match3.Screens
         Visible,
         Hide
     }
-    public abstract class GameScreen
+
+    public abstract class GameScreen : ILoadContent, IGameEntity
     {
         protected ContentManager _content;
-
         public ScreenManager ScreenManager { get; set; }
-        public ScreenState State { get; set; } = ScreenState.Visible;
+        public ScreenState State { get; protected set; }
 
         public abstract void Draw(GameTime gameTime, SpriteBatch spriteBatch);
 
@@ -23,5 +23,6 @@ namespace Match3.Screens
 
         public abstract void LoadContent();
 
+        public abstract void UnloadContent();
     }
 }

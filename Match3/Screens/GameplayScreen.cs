@@ -2,10 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Match3.GameEntity;
-using System.Collections.Generic;
 using Match3.LevelGenerators;
 using Match3.GameEntity.Tiles;
-using Microsoft.Xna.Framework.Input;
 
 namespace Match3.Screens
 {
@@ -27,6 +25,10 @@ namespace Match3.Screens
 
             InitializeCells();
         }
+        public override void UnloadContent()
+        {
+            _content.Unload();
+        }
 
         public override void Update(GameTime gameTime)
         {
@@ -41,17 +43,6 @@ namespace Match3.Screens
         private void InitializeCells()
         {
             _gameGrid.InitializeCells();
-        }
-
-        private void ControlInput()
-        {
-/*            _lastMouseState = _currentMouseState;
-            _currentMouseState = Mouse.GetState();
-
-            if (_lastMouseState.LeftButton == ButtonState.Pressed && _currentMouseState.LeftButton == ButtonState.Released)
-            {
-                _gameGrid.HandleInput(_currentMouseState.Position);
-            }*/
         }
     }
 }
