@@ -19,7 +19,7 @@ namespace Match3.LevelGenerators
 
         public Tile[,] GenerateTiles()
         {
-            var tiles = new Tile[Settings.GRID_ROWS, Settings.GRID_ROWS];
+            var tiles = new Tile[Settings.GRID_ROWS, Settings.GRID_COLS];
 
             for (int i = 1; i <= 8; i++)
             {
@@ -30,8 +30,7 @@ namespace Match3.LevelGenerators
 
                     var tile = GenerateTile();
 
-                    tile.Position = new Vector2(Settings.SCREEN_WIDTH - i * 64,
-                        Settings.SCREEN_HEIGHT - j * 64);
+                    tile.Position = GameGrid.CoordToTilePosition(new Point(row, col));
 
                     tile.ArrayPosition = new Point(row, col);
 

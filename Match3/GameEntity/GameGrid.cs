@@ -52,12 +52,24 @@ namespace Match3.GameEntity
                 tile?.Update(gameTime);
             }
 
-
             _currentState = GetState();
 
             switch (_currentState)
             {
                 case BoardState.Initial:
+
+                    var matches1 = DetectNodes();
+
+                    if (matches1.Count != 0)
+                    {
+                        matches1.ForEach(x =>
+                        {
+                            var pos = x.ArrayPosition;
+                            _tiles[pos.X, pos.Y] = null;
+                        });
+
+                        return;
+                    }
 
                     ControlInput();
                     var clickedTile = SelectTile(_mousePosition);
@@ -126,6 +138,16 @@ namespace Match3.GameEntity
                     break;
 
             }
+        }
+
+        public static Vector2 CoordToTilePosition(Point point)
+        {
+            int y_startPoint = 154;
+
+            var position = new Vector2(Settings.TILE_SIZE.X * point.Y,
+                y_startPoint + Settings.TILE_SIZE.Y * point.X);
+
+            return position;
         }
 
         public void InitializeCells()
@@ -278,8 +300,7 @@ namespace Match3.GameEntity
                         {
                             _tiles[tile.ArrayPosition.X, tile.ArrayPosition.Y] = null;
 
-                            tile.MoveTo(new Vector2(Settings.SCREEN_WIDTH - i * Settings.TILE_SIZE.X - Settings.TILE_SIZE.X,
-                                            Settings.SCREEN_HEIGHT - j * Settings.TILE_SIZE.Y - Settings.TILE_SIZE.Y),
+                            tile.MoveTo(CoordToTilePosition(new Point(i, j)),
                                             new Point(i, j));
 
                             _tiles[i, j] = tile;
@@ -287,7 +308,7 @@ namespace Match3.GameEntity
                     }
                 }
             }
-           // FillBoard();
+           FillBoard();
         }
 
         private void FillBoard()
@@ -303,8 +324,7 @@ namespace Match3.GameEntity
 
                     tile = _levelGenerator.GenerateTile();
                     tile.ArrayPosition = new Point(i, j);
-                    tile.Position = new Vector2(Settings.SCREEN_WIDTH - i * Settings.TILE_SIZE.X - Settings.TILE_SIZE.X,
-                        Settings.SCREEN_HEIGHT - j * Settings.TILE_SIZE.Y - Settings.TILE_SIZE.Y);
+                    tile.Position = CoordToTilePosition(tile.ArrayPosition);
 
                     _tiles[i, j] = tile;
                 }
