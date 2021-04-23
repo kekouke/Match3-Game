@@ -28,7 +28,7 @@ namespace Match3.Screens
             {
                 for (int j = 0; j < Settings.GRID_COLS; j++)
                 {
-                    Vector2 vector2 = GameGrid.CoordToTilePosition(new Point(i, j));
+                    Vector2 vector2 = TileContainer.CoordToTilePosition(new Point(i, j));
                     spriteBatch.Draw(_backgroundTile, vector2, Color.White);
                 }
             }

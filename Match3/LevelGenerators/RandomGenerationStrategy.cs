@@ -17,7 +17,7 @@ namespace Match3.LevelGenerators
                 {
                     var tile = GenerateTile();
 
-                    tile.Position = GameGrid.CoordToTilePosition(new Point(row, col));
+                    tile.Position = TileContainer.CoordToTilePosition(new Point(row, col));
                     tile.ArrayPosition = new Point(row, col);
 
                     tiles[row, col] = tile;

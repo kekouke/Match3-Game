@@ -57,15 +57,8 @@ namespace Match3.Screens
             _gameGrid = new GameGrid(new RandomGenerationStrategy());
         }
 
-        private void InitializeCells()
-        {
-            _gameGrid.InitializeCells();
-        }
-
         private void StartGame()
         {
-            InitializeCells();
-
             _timer.SetTimer(new TimeSpan(0, 0, 60));
             _timer.Finished += OnTimerFinished;
             _timer.Start();
