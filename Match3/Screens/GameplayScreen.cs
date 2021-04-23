@@ -13,6 +13,7 @@ namespace Match3.Screens
         private GameGrid _gameGrid;
         private SpriteFont _spriteFont;
         private Timer _timer = new Timer();
+        private bool _isEndGame;
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
@@ -34,11 +35,9 @@ namespace Match3.Screens
 
             _spriteFont = _content.Load<SpriteFont>("Fonts/Font");
 
-            _timer.SetTimer(new TimeSpan(0, 0, 60));
-            _timer.Finished += OnTimerFinished;
-
-            InitializeCells();
+            StartGame();
         }
+
         public override void UnloadContent()
         {
             _content.Unload();
@@ -48,6 +47,9 @@ namespace Match3.Screens
         {
             _gameGrid.Update(gameTime);
             _timer.Update(gameTime);
+
+            if (_isEndGame)
+                EndGame();
         }
 
         public GameplayScreen()
@@ -60,11 +62,29 @@ namespace Match3.Screens
             _gameGrid.InitializeCells();
         }
 
+        private void StartGame()
+        {
+            InitializeCells();
+
+            _timer.SetTimer(new TimeSpan(0, 0, 60));
+            _timer.Finished += OnTimerFinished;
+            _timer.Start();
+        }
+
         private void OnTimerFinished(object sender, EventArgs e)
         {
-            ScreenManager.AddScreen(new GameOverScreen());
+            _isEndGame = true;
+        }
 
-            State = ScreenState.NonActive;
+        private void EndGame()
+        {
+            var boardState = _gameGrid.GetState();
+            if (boardState == BoardState.Initial || boardState == BoardState.TileSelected)
+            {
+                ScreenManager.AddScreen(new GameOverScreen());
+
+                State = ScreenState.NonActive;
+            }
         }
     }
 }

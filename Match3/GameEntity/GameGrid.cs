@@ -153,6 +153,8 @@ namespace Match3.GameEntity
 
                 matches = DetectNodes();
             }
+
+            ConvertToList().ForEach(x => x.Removed += OnTileRemove);
         }
 
         private List<Tile> DetectNodes()
@@ -217,13 +219,13 @@ namespace Match3.GameEntity
             return tile;
         }
 
-        private BoardState GetState()
+        public BoardState GetState()
         {
             var tiles = ConvertToList();
 
             if (tiles.Any(x => x == null))
                 return BoardState.HasEmptyFields;
-            if (tiles.Any(x => x.IsMoving))
+            if (tiles.Any(x => x.IsMoving || x.IsRemoving))
                 return BoardState.TileMoving;
             if (_swappedTile != null)
                 return BoardState.TileSwapped;
@@ -265,7 +267,7 @@ namespace Match3.GameEntity
                 tiles.ForEach(x =>
                 {
                     var pos = x.ArrayPosition;
-                    _tiles[pos.X, pos.Y] = null;
+                    _tiles[pos.X, pos.Y].IsRemoving = true;
                 });
                 return true;
             }
@@ -327,6 +329,7 @@ namespace Match3.GameEntity
                     tile = _levelGenerator.GenerateTile();
                     tile.ArrayPosition = new Point(i, j);
                     tile.Position = CoordToTilePosition(tile.ArrayPosition);
+                    tile.Removed += OnTileRemove;
 
                     _tiles[i, j] = tile;
                 }
@@ -346,6 +349,16 @@ namespace Match3.GameEntity
             }
 
             _mousePosition = new Point(-1, -1);
+        }
+
+        private void OnTileRemove(object sender, EventArgs e)
+        {
+            var tile = sender as Tile;
+
+            if (tile != null)
+            {
+                _tiles[tile.ArrayPosition.X, tile.ArrayPosition.Y] = null;
+            }
         }
 
         public GameGrid(IGenerationStrategy strategy)

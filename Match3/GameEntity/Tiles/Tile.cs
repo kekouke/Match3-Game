@@ -12,6 +12,7 @@ namespace Match3.GameEntity.Tiles
         private Animation _animation = new ScaleAnimation();
 
         public bool IsMoving { get; private set; }
+        public bool IsRemoving { get; set; }
         public Vector2 Position { get; set; }
         public Point ArrayPosition { get; set; }
         public float Scale { get; set; } = 1f;
@@ -28,6 +29,8 @@ namespace Match3.GameEntity.Tiles
             );
         }
 
+        public EventHandler Removed;
+
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             var center = new Vector2(Texture.Width / 2, Texture.Height / 2);
@@ -42,8 +45,23 @@ namespace Match3.GameEntity.Tiles
             {
                 Move(gameTime);
             }
+            else if (IsRemoving)
+            {
+                Remove();
+            }
 
             _animation.Animate(gameTime);
+        }
+
+        private void Remove()
+        {
+            if (Scale < 0.3f)
+            {
+                Removed?.Invoke(this, null);
+                return;
+            }
+
+            Scale -= 0.1f;
         }
 
         public void Move(GameTime gameTime)

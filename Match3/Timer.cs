@@ -20,21 +20,25 @@ namespace Match3
 
                 if (_timer.Seconds <= 0)
                 {
-                    StopTimer();
+                    Stop();
                     Finished?.Invoke(this, null);
                 }
             }
         }
 
-        private void StopTimer()
+        public void Stop()
         {
             _isActive = false;
+        }
+
+        public void Start()
+        {
+            _isActive = true;
         }
 
         public void SetTimer(TimeSpan time)
         {
             _timer = time;
-            _isActive = true;
         }
     }
 }
