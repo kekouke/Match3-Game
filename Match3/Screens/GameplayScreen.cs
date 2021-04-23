@@ -14,7 +14,6 @@ namespace Match3.Screens
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-
             spriteBatch.DrawString(_spriteFont, "Score: " + _gameGrid.Score,
                 Vector2.Zero, Color.White, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 0);
 

@@ -9,24 +9,28 @@ namespace Match3.Screens
 {
     public class MainMenuScreen : GameScreen
     {
-        private List<Button> _buttons = new List<Button>();
+        private List<Button> _buttons;
 
         public override void LoadContent()
         {
             if (_content == null)
                 _content = new ContentManager(ScreenManager.Game.Services, "Content");
 
-            var playGameTexture = _content.Load<Texture2D>("Controls/Button");
-            var font = _content.Load<SpriteFont>("Fonts/Font");
-            var button = new Button(playGameTexture, "Start Game", font);
+            var buttonTexture = _content.Load<Texture2D>("Controls/Button");
+            var buttonFont = _content.Load<SpriteFont>("Fonts/Font");
 
-            var screenCenter = new Vector2((Settings.SCREEN_WIDTH - button.Rectangle.Width) / 2,
-                (Settings.SCREEN_HEIGHT - button.Rectangle.Height) / 2);
+            var playGameButton = new Button(buttonTexture, "Start Game", buttonFont);
 
-            button.Position = screenCenter;
-            button.Clicked += OnStartGame;
+            var screenCenter = new Vector2((Settings.SCREEN_WIDTH - playGameButton.Rectangle.Width) / 2,
+                (Settings.SCREEN_HEIGHT - playGameButton.Rectangle.Height) / 2);
 
-            _buttons.Add(button);
+            playGameButton.Position = screenCenter;
+            playGameButton.Clicked += OnStartGame;
+
+            _buttons = new List<Button>()
+            {
+                playGameButton
+            };
         }
 
         public override void UnloadContent()

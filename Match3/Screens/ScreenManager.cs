@@ -76,6 +76,14 @@ namespace Match3.Screens
             _screens.Remove(screen);
         }
 
+        public void Clear()
+        {
+            while (_screens.Count > 0)
+            {
+                RemoveScreen(_screens[0]);
+            }
+        }
+
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
