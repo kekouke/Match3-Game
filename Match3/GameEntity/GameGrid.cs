@@ -137,83 +137,71 @@ namespace Match3.GameEntity
         {
             _tiles = _levelGenerator.GenerateTiles();
 
-            while (DetectNodes().Count > 0)
+            var matches = DetectNodes();
+            while (matches.Count > 0)
             {
-                for (int i = 0; i < ROWS; i++)
+
+                for (int i = 0; i < matches.Count; i++)
                 {
-                    for (int j = 0; j < COLS; j++)
-                    {
-                        if (_tiles[i, j].State == TileState.MarkHorizontal ||
-                            _tiles[i, j].State == TileState.MarkVertical)
-                        {
-                            var pos = _tiles[i, j].Position;
-                            _tiles[i, j] = _levelGenerator.GenerateTile();
-                            _tiles[i, j].Position = pos;
-                            _tiles[i, j].ArrayPosition = new Point(i, j);
-                        }
-                    }
+                    var arrayPosition = matches[i].ArrayPosition;
+                    var pos = matches[i].Position;
+
+                    _tiles[arrayPosition.X, arrayPosition.Y] = _levelGenerator.GenerateTile();
+                    _tiles[arrayPosition.X, arrayPosition.Y].Position = pos;
+                    _tiles[arrayPosition.X, arrayPosition.Y].ArrayPosition = arrayPosition;
                 }
+
+                matches = DetectNodes();
             }
         }
 
-        // TODO
         private List<Tile> DetectNodes()
         {
             var matches = new List<Tile>();
 
             for (int i = 0; i < ROWS; i++)
             {
-                for (int j = 0; j < COLS; j++)
-                {
-                    if (j > 5 || _tiles[j, i].State == TileState.MarkHorizontal)
-                        continue;
-
-                    int n = j + 1;
-                    var list = new List<Tile>() { _tiles[j, i] };
-                    while (n < _tiles.GetLength(1) && _tiles[j, i].GetType().Equals(_tiles[n, i].GetType()))
-                    {
-                        list.Add(_tiles[n, i]);
-                        n++;
-                    }
-
-                    if (list.Count >= 3)
-                    {
-                        list.ForEach(x =>
-                        {
-                            x.State = TileState.MarkHorizontal;
-                            matches.Add(x);
-                        });
-                    }
-                }
+                matches.AddRange(DetectLineMatches(GetTilesRow(i)));
+                matches.AddRange(DetectLineMatches(GetTilesCol(i)));
             }
 
-            for (int i = 0; i < ROWS; i++)
+            return matches.Distinct().ToList();
+        }
+        
+        private List<Tile> GetTilesRow(int index)
+        {
+            if (index < 0 || index >= ROWS)
+                return null;
+
+            return Enumerable.Range(0, ROWS).Select(x => _tiles[index, x]).ToList();
+        }
+
+        private List<Tile> GetTilesCol(int index)
+        {
+            if (index < 0 || index >= COLS)
+                return null;
+
+            return Enumerable.Range(0, COLS).Select(x => _tiles[x, index]).ToList();
+        }
+
+        private List<Tile> DetectLineMatches(List<Tile> tiles)
+        {
+            var matches = new List<Tile>();
+
+            for (int i = 0; i < tiles.Count; i++)
             {
-                for (int j = 0; j < COLS; j++)
+                var list = new List<Tile>() { tiles[i] };
+
+                int n = i + 1;
+                while (n < tiles.Count && tiles[i].GetType().Equals(tiles[n].GetType()))
                 {
-                    if (j > 5 || _tiles[i, j].State == TileState.MarkVertical)
-                        continue;
-
-                    int n = j + 1;
-                    var list = new List<Tile>() { _tiles[i, j] };
-                    while (n < _tiles.GetLength(1) && _tiles[i, j].GetType().Equals(_tiles[i, n].GetType()))
-                    {
-                        list.Add(_tiles[i, n]);
-                        n++;
-                    }
-
-                    if (list.Count >= 3)
-                    {
-                        list.ForEach(x =>
-                        {
-                            x.State = TileState.MarkVertical;
-                            matches.Add(x);
-                        });
-                    }
+                    list.Add(tiles[n]);
+                    n++;
                 }
-            }
 
-            matches = matches.Distinct().ToList();
+                if (list.Count >= 3)
+                    matches.AddRange(list);
+            }
 
             return matches;
         }
@@ -322,8 +310,6 @@ namespace Match3.GameEntity
                     FillBoard();
                     _tilesCollapse = false;
                 }
-
-
             }
         }
 

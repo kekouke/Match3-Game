@@ -5,13 +5,6 @@ using System;
 
 namespace Match3.GameEntity.Tiles
 {
-   public enum TileState
-    {
-        Nothing,
-        MarkHorizontal,
-        MarkVertical
-    }
-
     public abstract class Tile : IGameEntity
     {
         private Vector2 _targetPosition;
@@ -21,7 +14,6 @@ namespace Match3.GameEntity.Tiles
         public bool IsMoving { get; private set; }
         public Vector2 Position { get; set; }
         public Point ArrayPosition { get; set; }
-        public TileState State { get; set; }
         public float Scale { get; set; } = 1f;
 
         public virtual Texture2D Texture { get; }
