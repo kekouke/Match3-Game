@@ -31,7 +31,8 @@ namespace Match3.Screens
 
             foreach (var screen in _screens)
             {
-                _screensToUpdate.Add(screen);
+                if (screen.State != ScreenState.NonActive)
+                    _screensToUpdate.Add(screen);
             }
 
             while (_screensToUpdate.Count > 0)

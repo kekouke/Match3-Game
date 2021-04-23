@@ -8,7 +8,8 @@ namespace Match3.Screens
     public enum ScreenState
     {
         Visible,
-        Hide
+        Hide,
+        NonActive
     }
 
     public abstract class GameScreen : ILoadContent, IGameEntity

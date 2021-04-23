@@ -11,7 +11,6 @@ namespace Match3.Screens
         private Sprite _background;
         private Button _button;
 
-
         public override void LoadContent()
         {
             if (_content == null)

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Match3.GameEntity;
 using Match3.LevelGenerators;
 using Match3.GameEntity.Tiles;
+using System;
 
 namespace Match3.Screens
 {
@@ -11,11 +12,15 @@ namespace Match3.Screens
     {
         private GameGrid _gameGrid;
         private SpriteFont _spriteFont;
+        private Timer _timer = new Timer();
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             spriteBatch.DrawString(_spriteFont, "Score: " + _gameGrid.Score,
                 Vector2.Zero, Color.White, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 0);
+
+            spriteBatch.DrawString(_spriteFont, "Game Session: " + _timer.Value.Seconds,
+                new Vector2(0, 25), Color.White, 0, Vector2.Zero, 1.5f, SpriteEffects.None, 0);
 
             _gameGrid.Draw(gameTime, spriteBatch);
         }
@@ -29,6 +34,9 @@ namespace Match3.Screens
 
             _spriteFont = _content.Load<SpriteFont>("Fonts/Font");
 
+            _timer.SetTimer(new TimeSpan(0, 0, 60));
+            _timer.Finished += OnTimerFinished;
+
             InitializeCells();
         }
         public override void UnloadContent()
@@ -39,6 +47,7 @@ namespace Match3.Screens
         public override void Update(GameTime gameTime)
         {
             _gameGrid.Update(gameTime);
+            _timer.Update(gameTime);
         }
 
         public GameplayScreen()
@@ -49,6 +58,13 @@ namespace Match3.Screens
         private void InitializeCells()
         {
             _gameGrid.InitializeCells();
+        }
+
+        private void OnTimerFinished(object sender, EventArgs e)
+        {
+            ScreenManager.AddScreen(new GameOverScreen());
+
+            State = ScreenState.NonActive;
         }
     }
 }
