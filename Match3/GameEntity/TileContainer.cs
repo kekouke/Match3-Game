@@ -168,7 +168,14 @@ namespace Match3.GameEntity
                 matches = DetectNodes();
             }
 
-            ToList().ForEach(x => x.Removed += OnTileRemove);
+
+
+            ToList().ForEach(x => {
+                x.Removed += OnTileRemove;
+                var position = x.Position;
+                x.Position = CoordToTilePosition(new Point(0, 0));
+                x.MoveTo(position, x.ArrayPosition);
+            });
         }
 
         private List<Tile> GetTilesRow(int index)
@@ -221,8 +228,10 @@ namespace Match3.GameEntity
                         continue;
 
                     tile = _levelGenerator.GenerateTile();
-                    tile.ArrayPosition = new Point(i, j);
-                    tile.Position = CoordToTilePosition(tile.ArrayPosition);
+                    tile.Position = CoordToTilePosition(new Point(0, j));
+
+                    var position = CoordToTilePosition(new Point(i, j));
+                    tile.MoveTo(position, new Point(i, j));
                     tile.Removed += OnTileRemove;
 
                     _tiles[i, j] = tile;
